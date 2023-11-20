@@ -4,6 +4,7 @@ import { CartService } from '../services/cart.service';
 import { Router } from '@angular/router';
 import { ProductService } from '../services/product.service';
 import { AuthService } from '../services/auth.service';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-tab1',
@@ -40,7 +41,7 @@ export class Tab1Page {
     }
   ];
 
-  constructor(private cartService: CartService, private router: Router, private productService: ProductService, private authService: AuthService) {
+  constructor(private alertController: AlertController,private cartService: CartService, private router: Router, private productService: ProductService, private authService: AuthService) {
     this.productService.getProducts().subscribe((products: Product[]) => {
       this.products = products;
       this.productsFounds = this.products;
@@ -73,6 +74,51 @@ export class Tab1Page {
 
   openProductAddPage() {
     this.router.navigate(['/add-product']); // Asume que la ruta 'product-add' existe para añadir productos.
+  }
+
+  openProductUpdatePage(name:string) {
+    this.productService.pos = this.products.findIndex(item => item.name == name);
+    this.productService.productwhere = this.products[this.productService.pos];
+    this.productService.productCollection.snapshotChanges().subscribe((data) => {
+      this.productService.productwhere.id = data[this.productService.pos].payload.doc.id;
+    });
+    console.log(this.productService.productwhere);
+    
+    
+    this.router.navigate(['/update-product']);
+    
+  }
+
+  async mostrarConfirmacion(name:string) {
+
+      this.productService.pos = this.products.findIndex(item => item.name == name);
+      this.productService.productwhere = this.products[this.productService.pos];
+      this.productService.productCollection.snapshotChanges().subscribe((data) => {
+        this.productService.productwhere.id = data[this.productService.pos].payload.doc.id;
+      });
+
+    const alert = await this.alertController.create({
+      header: 'Confirmar',
+      message: '¿Estás seguro de que deseas realizar esta acción?',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: (blah) => {
+            console.log('Acción cancelada');
+          }
+        }, {
+          text: 'Confirmar',
+          handler: () => {
+            this.productService.deleteProduct(this.productService.productwhere);
+            // Aquí puedes realizar la acción que deseas al confirmar
+          }
+        }
+      ]
+    });
+  
+    await alert.present();
   }
 
   public logout() {

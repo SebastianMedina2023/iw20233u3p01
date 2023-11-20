@@ -59,9 +59,22 @@
           <ion-card-content>
             {{product.description}}
           </ion-card-content>
-          <ion-button expand="block" (click)="addToCart(product, i)">
-            <ion-icon name="cart-outline" ></ion-icon>
+          
+          <ion-button expand="block" color="success" (click)="addToCart(product, i)">
+            Agregar al carrito
+            <ion-icon name="cart-sharp"></ion-icon>
           </ion-button>
+
+          <ion-button expand="block" color="warning" (click)="openProductUpdatePage(product.name)">
+            Actualizar producto
+            <ion-icon name="reload-circle-sharp"></ion-icon>
+          </ion-button>
+
+          <ion-button expand="block" color="danger" (click)="mostrarConfirmacion(product.name)">
+            Eliminar producto
+            <ion-icon name="trash-sharp"></ion-icon>
+          </ion-button>
+
         </ion-card>
       </ion-col>
     </ion-row>

@@ -8,8 +8,16 @@ import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/comp
 })
 export class ProductService {
   private products: Observable<Product[]>;
-
-  private productCollection: AngularFirestoreCollection<Product>;
+  public pos = 0;
+  public productwhere: Product = {
+    id: "",
+    name: "",
+    price: 0,
+    description: "",
+    type: "",
+    photo: ""
+  };
+  public productCollection: AngularFirestoreCollection<Product>;
 
   constructor(private firestore: AngularFirestore) {
     this.productCollection = this.firestore.collection<Product>('products');
@@ -30,6 +38,33 @@ export class ProductService {
         return "error";
       }
     );
+  }
+
+  //Actualizar
+  updateProduct(product:Product):Promise<string>{
+    return this.productCollection.doc(product.id).update(product)
+    .then((doc)=>{
+      console.log('Producto actualizado con id'+ product.id);
+
+      return 'success'
+    })
+    .catch((error)=>{
+      console.log('Error al actualizar producto'+ error);
+      return 'Error'
+    });
+  }
+
+  //Eliminar 
+  deleteProduct(product:Product):Promise<string>{
+    return this.productCollection.doc(product.id).delete()
+    .then((doc)=>{
+      console.log('Producto eliminado con id'+ product.id);
+      return 'success'
+    })
+    .catch((error)=>{
+      console.log('Error al eliminar producto'+ error);
+      return 'Error'
+    });
   }
 
   getProducts(): Observable<Product[]> {
