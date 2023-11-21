@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Cart, Product, CartItem } from '../models/product.model';
+import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -12,10 +14,38 @@ export class CartService {
     itemCount: 0
   };
 
-  constructor() { }
+  private cartHistorial: Observable<Cart[]>;
+
+  private cartCollection:AngularFirestoreCollection<Cart>;
+
+  constructor(private firestore:AngularFirestore) { 
+    this.cartCollection = this.firestore.collection<Cart>('carts');
+    this.cartHistorial = this.cartCollection.valueChanges();
+  }
+
+  public getCartH(): Observable<Cart[]> {
+    return this.cartHistorial;
+  }
 
   public getCart(): Cart {
     return this.cart;
+  }
+
+  buyProducts(cart:Cart):Promise<string>{
+    return this.cartCollection.add(cart)
+      .then((doc)=>{
+        console.log('Productos comprados' + doc.id);
+        this.cart = {
+          items: [],
+          total: 0,
+          itemCount: 0
+        };
+        return 'success'
+      })
+      .catch((error)=>{
+        console.log('error de:'+ error);
+        return 'Error'
+      });
   }
 
   public addToCart(product: Product): Cart {

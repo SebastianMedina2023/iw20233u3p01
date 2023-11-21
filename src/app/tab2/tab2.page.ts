@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CartService } from '../services/cart.service';
 import { Cart, Product, CartItem } from '../models/product.model';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 
 
 @Component({
@@ -13,8 +13,28 @@ export class Tab2Page {
 
   public cart: Cart;
 
-  constructor(private cartService: CartService, private alertController: AlertController) {
+  constructor(private cartService: CartService, private alertController: AlertController,  private toastController:ToastController) {
     this.cart = this.cartService.getCart();
+  }
+
+  async confirmProducts(){
+    this.cartService.buyProducts(this.cart)
+    .then(async (result)=>{
+          if(result=='success'){
+            console.log('Producto guardado exitosamente');
+            const toast = await this.toastController.create({
+              message: 'Producto guardado correctamente',
+              duration: 2000, // Duración de 2 segundos
+              position: 'top' // Posición superior
+            });
+            toast.present();
+          }else{
+            console.log('Error al guardar el producto');
+          }
+        })
+        .catch(error =>{
+          console.log('error')
+        });
   }
 
   async promptRemoveItem(item: CartItem) {
